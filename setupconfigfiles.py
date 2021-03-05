@@ -7,8 +7,13 @@ config['Settings'] = {
     "url": "https://www.google.com",
     "keyword": "Google Search",
     "refreshrate": 0.25,
-    "email": "example@example.com",
-    "stoponsuccess": "yes"
+    "stoponsuccess": "yes",
+    "runinbackground": "no"
+}
+
+config['Emails'] = {
+    "home": "home@example.com",
+    "work": "work@example.com"
 }
 
 with open('config.ini', 'w') as configfile:
