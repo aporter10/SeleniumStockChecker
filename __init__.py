@@ -61,7 +61,7 @@ try:
                 <p><a href="{url}">{url}</a></p>
                 ''')
             try:
-                sg = SendGridAPIClient('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')
+                sg = SendGridAPIClient('<SENDGRID API KEY HERE>')
                 response = sg.send(message)
                 
             except Exception as e:
