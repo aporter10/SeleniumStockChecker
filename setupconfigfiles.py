@@ -3,17 +3,23 @@ import configparser
 config = configparser.ConfigParser()
 
 config['Settings'] = {
-    "itemname": "Cool Thingy at Google",
+    "itemname": "Bunny",
     "url": "https://www.google.com",
     "keyword": "Google Search",
-    "refreshrate": 0.25,
-    "stoponsuccess": "yes",
+    "refreshrate": 30.25,
+    "stoponsuccess": "no",
     "runinbackground": "no"
 }
 
-config['Emails'] = {
-    "home": "home@example.com",
-    "work": "work@example.com"
+config['Phones'] = {
+    "home": "+1xxxxxxxxxx",
+    "work": "1xxxxxxxxxx"
+}
+
+config['Twilio'] = {
+"accountsid": "x",
+"authtoken": "x",
+"fromphone": "x"
 }
 
 with open('config.ini', 'w') as configfile:

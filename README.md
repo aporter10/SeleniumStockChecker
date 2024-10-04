@@ -12,3 +12,5 @@ Run `python setupconfigfiles.py` in the repository directory to create a default
 - `runinbackground`: Whether the app should run quietly in the background or show an actual chrome tab. Warning: some websites block browsers that are running in the background. For example, this app will not work on best buy links while in background mode.
 
 Under the `Emails` section, you can put any number of emails that you want. The key doesn't matter, so you can set it to whatever you want.
+
+Update* Now using Twilio you can make a Twilio acount put you data into it and it will send text messages instead of emails to you.

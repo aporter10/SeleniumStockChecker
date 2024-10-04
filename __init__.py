@@ -7,8 +7,8 @@ import os
 import sys
 import configparser
 import time
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+from twilio.rest import Client
+from selenium.webdriver.chrome.service import Service  # Import for Service
 
 try:
     from selenium import webdriver
@@ -28,53 +28,60 @@ try:
     stop_on_success = config.getboolean('Settings', 'stoponsuccess')
     run_in_background = config.getboolean('Settings', 'runinbackground')
 
-    emails = []
-    for key in config['Emails']:
-        emails.append(config['Emails'][key])
-
+    # Twilio config
+    twilio_account_sid = config['Twilio']['accountsid']
+    twilio_auth_token = config['Twilio']['authtoken']
+    twilio_phone_number = config['Twilio']['fromphone']
+    phone_numbers = []
+    for key in config['Phones']:
+        phone_numbers.append(config['Phones'][key])
     print('Loaded config.')
 except:
     print('Invalid config file. Run setupconfigfiles.py.')
     sys.exit()
 
-if len(emails) == 0:
-    print('No emails specified. Quitting.')
+if len(phone_numbers) == 0:
+    print('No phone numbers specified. Quitting.')
     sys.exit()
 
+# Try block for driver setup and monitoring
 try:
     chrome_options = Options()
     if run_in_background:
-        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--headless")  # Runs Chrome in background
 
-    driver = webdriver.Chrome('chromedriver.exe', options=chrome_options)
+    # Set up the service for chromedriver and initialize WebDriver with options
+    service = Service(executable_path='chromedriver.exe')
+    driver = webdriver.Chrome(service=service, options=chrome_options)
 
     driver.get(url)
+    client = Client(twilio_account_sid, twilio_auth_token)
 
     while True:
         if keyword not in driver.page_source:
-            # send message
-            message = Mail(
-                from_email = 'alerts@bootle.tech',
-                to_emails = emails,
-                subject = f'{item_name} Alert!',
-                html_content = f'''
-                <p><a href="{url}">{url}</a></p>
-                ''')
-            try:
-                sg = SendGridAPIClient('<SENDGRID API KEY HERE>')
-                response = sg.send(message)
-                
-            except Exception as e:
-                print(e)
+            # Send SMS message
+            for phone in phone_numbers:
+                message = f'{item_name} Alert! Check it here: {url}'
+                try:
+                    client.messages.create(
+                        body=message,
+                        from_=twilio_phone_number,
+                        to=phone
+                    )
+                    print(f'SMS sent to {phone}')
+                except Exception as e:
+                    print(f'Error sending SMS to {phone}: {e}')
 
             if stop_on_success:
-                print(f'Keyword {keyword} is missing on {url}. Emails sent. Quitting...')
+                print(f'Keyword {keyword} is missing on {url}. SMS sent. Quitting...')
                 driver.quit()
                 sys.exit()
             else:
-                print('Found keyword, and sent emails. Continuing to monitor.')
+                print('Found keyword, and sent SMS. Continuing to monitor.')
         time.sleep(refresh_rate * 60)
         driver.refresh()
+
+# Catch script exit
 except KeyboardInterrupt:
     print('Exiting...')
     driver.quit()
